@@ -1,0 +1,16 @@
+FROM openresty/openresty:alpine-fat
+
+RUN apk add git
+RUN luarocks install lua-cmsgpack
+RUN luarocks install inspect
+
+
+ADD cacert.pem /etc/nginx/cacert.pem
+ADD Nginx.conf /etc/nginx/nginx.conf
+ADD OpenRestyModules /SiteModules
+ADD src/Config.lua /AutoGenModules/Config.lua
+ADD WebData /Site
+
+WORKDIR /Site
+
+CMD ["openresty", "-c", "/etc/nginx/nginx.conf"]

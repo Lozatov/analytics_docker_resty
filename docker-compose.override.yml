@@ -1,0 +1,14 @@
+version: "3"
+services:
+  tarantool:
+    volumes:
+      - ./DB:/var/lib/tarantool
+      - ./src/Config.lua:/opt/tarantool/Config.lua
+      - ./src/TarantoolApp.lua:/opt/tarantool/app.lua
+  nginx:
+    volumes:
+      - ./cacert.pem:/etc/nginx/cacert.pem
+      - ./Nginx.conf:/etc/nginx/nginx.conf
+      - ./OpenRestyModules:/SiteModules
+      - ./src/Config.lua:/AutoGenModules/Config.lua
+      - ./WebData:/Site

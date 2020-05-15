@@ -1,0 +1,5 @@
+FROM tarantool/tarantool:2.3
+
+ADD src/Config.lua /opt/tarantool/Config.lua
+ADD src/TarantoolApp.lua /opt/tarantool/app.lua
+CMD tarantool /opt/tarantool/app.lua

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+      <title>Admin Panel</title>
+  </head>
+  <body>
+      <div class="container">
+        <div class="card mt-3" style="border-radius: 25px;">
+          <div class="card-body">
+            <h3 class="card-title text-center">Admin Panel  v1.0</h3>
+            <hr>
+              <form class="forms-sample">
+                <div class="form-group">
+                    <label>Начальное время</label><br>
+                    <input type="datetime-local" class="form-control" id="start" name="trip-start" value="2000-11-10T22:22">
+                </div>
+                <div class="form-group">
+                    <label>Конечное время</label><br>
+                    <input type="datetime-local" class="form-control" id="stop" name="trip-start" value="2022-11-11T22:22">
+                </div>
+                <div class="form-group">
+                    <label>URL</label><br>
+                    <input type="text" class="form-control" id="urls" placeholder="Url"
+                    value="http://176.215.246.18/test.html">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" class="form-control p-2" id="password" name="Password" placeholder="Пароль"
+                    value="0dd3e512642c97ca3f747f9a76e374fbda73f9292823c0313be9d78add7cdd8f72235af0c553dd26797e78e1854edee0ae002f8aba074b066dfce1af114e32f8">
+                </div>
+                <button type="button" class="btn btn-outline-success mr-2 col-12" style="border-radius: 10px;">
+                    ОК
+                    <script type="text/javascript">
+                      let Script = document.currentScript;
+
+                      Script.parentNode.addEventListener('click', function(event) { 
+
+                        let element_arr = [];
+                            element_arr.push((Date.parse(document.getElementById('start').value))/1000); // 0
+                            element_arr.push((Date.parse(document.getElementById('stop').value))/1000); // 1
+                            element_arr.push(document.getElementById('urls').value); // 2
+                            element_arr.push(document.getElementById('password').value); // 3
+
+                        if (!element_arr[0])return alert('Поле начальное время не может быть пустым');
+                        if (!element_arr[1])return alert('Поле конечное время не может быть пустым');
+                        if (!element_arr[2])return alert('Поле URL не может быть пустым');
+                        if (!element_arr[3])return alert('Поле PASSWORD не может быть пустым');
+
+                        let xhr = new XMLHttpRequest();
+                        xhr.open('POST', `http://176.215.246.18/api/GetClicksOfTime`, true);
+
+                        xhr.onreadystatechange = function(){
+                          if (xhr.readyState == 4 && xhr.status == 200) {
+                            let dictionary = {};
+                            let xhrr = JSON.parse(xhr.response);
+                            for (let i of xhrr) {
+                              // let resolution = i.metaData.widht + 'x' + i.metaData.height;
+                              let resolution = i.metaData.widht.toString();
+                              if (dictionary[resolution] == null) {
+                                dictionary[resolution] = [[i.x, i.y]];
+                              } else {
+                                dictionary[resolution].push([i.x, i.y]);
+                              }
+                            }
+                            let selector = document.getElementById('resolution_selector');
+                            selector.innerHTML = '';
+                            for (let j in dictionary) {
+                              let button = document.createElement("button");
+                              button.appendChild(document.createTextNode(j));
+                              button.type="button";
+                              button.className="dropdown-item";
+                              let RePaint=function(){
+                                let PF=document.getElementById("PageFrame");
+                                let PC=document.getElementById("PageCanvas");
+                                let PB=document.getElementById("PageBorder");
+                                PB.classList.remove("d-none");
+                                let rwidth=PB.clientWidth;
+                                let pwidth=j;
+                                let addr=element_arr[2];
+
+                                PF.style["transform-origin"]="0 0";
+                                PF.style.transform="scale("+rwidth/pwidth+")";
+                                PF.style.width=pwidth+"px";
+
+                                PC.style["transform-origin"]="0 0";
+                                PC.style.transform="scale("+rwidth/pwidth+")";
+                                PC.style.width=pwidth+"px";
+                                PC.width=pwidth;
+
+                                let HeightFix=function(){
+                                  let SH=PF.contentDocument.body.scrollHeight
+                                  PF.style.height=SH +'px';
+                                  PC.style.height=SH +'px';
+                                  PC.height=SH;
+                                  PB.style.height=SH*rwidth/pwidth +'px';
+
+                                  ctx = PC.getContext('2d');
+
+                                  ctx.filter = 'blur(8px)';
+
+                                  for (let i0 of dictionary[pwidth]) {
+                                    console.log(i0);
+                                    ctx.beginPath();
+                                    ctx.arc(i0[0], i0[1], 5, 0, 2 * Math.PI, true);
+                                    ctx.fillStyle = "#F00";
+                                    ctx.fill();
+                                  }
+
+                                  PF.removeEventListener('load', HeightFix);
+                                };
+
+                                PF.addEventListener('load', HeightFix)
+                                PF.src=addr;
+                              }
+                              button.addEventListener('click',RePaint)
+                              selector.appendChild(button);
+                            }
+                          }
+                        }
+                        xhr.send(JSON.stringify(
+                          {
+                            "InternalKey": element_arr[3],
+                            "timestamps": {
+                              "min": element_arr[0], 
+                              "max": element_arr[1]
+                            },
+                            "page": element_arr[2]
+                          }
+                        ));
+
+                      });
+                    </script>
+                </button>
+                <div>
+                  <hr>
+                  <div class="dropdown" >
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 10px;">Resolution</button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="resolution_selector">
+                      <!-- Insert Data -->
+                    </div>
+                  </div>
+                  <hr>
+
+                <div id="PageBorder" style="position: relative;width: 100%;height: 1000px;" class="d-none">
+                  <iframe id="PageFrame" style="position: absolute;width: 100%;height: 100%;" src="" scrolling="no"></iframe>
+                  <canvas id="PageCanvas" style="position: absolute;width: 100%;height: 100%;"></canvas>
+                </div>
+
+                </div>
+            </form>
+          </div>
+        </div>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</html>

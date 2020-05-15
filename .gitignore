@@ -1,0 +1,17 @@
+tp_allowed
+__pycache__
+test-root
+*.dSYM
+misc/tp_dump
+misc/tp_send
+misc/json2tp
+*.snap
+*.xlog
+*.out*
+test/cases/*.tmp
+test/tp_allowed
+*.src.rpm
+experemets
+.DS_Store
+*.pyc
+.idea

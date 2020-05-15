@@ -1,0 +1,16 @@
+version: '3'
+services:
+  tarantool:
+    build:
+      context: .
+      dockerfile: DockerfileTarantool
+    ports:
+      - "3301:3301"
+  nginx:
+    build:
+      context: .
+      dockerfile: DockerfileNginx
+    depends_on:
+      - tarantool
+    ports:
+      - "80:80"

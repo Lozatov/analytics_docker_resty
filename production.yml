@@ -1,0 +1,5 @@
+version: "3"
+services:
+  tarantool:
+    volumes:
+      - /main-database:/var/lib/tarantool

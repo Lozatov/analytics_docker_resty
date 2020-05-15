@@ -1,0 +1,1 @@
+return {['SaveClick']={'x','y','page','metaData'},['GetClicksOfTime']={'InternalKey','timestamps','page'}}
